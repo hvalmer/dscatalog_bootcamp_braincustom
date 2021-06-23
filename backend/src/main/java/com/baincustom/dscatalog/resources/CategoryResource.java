@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baincustom.dscatalog.entities.Category;
+import com.baincustom.dscatalog.dto.CategoryDTO;
 import com.baincustom.dscatalog.services.CategoryService;
 
 /**
@@ -26,8 +26,8 @@ public class CategoryResource {
 	
 	//criando os endpoints
 	@GetMapping
-	public ResponseEntity<List <Category>> findAll(){
-		List<Category> list = service.findAll();
+	public ResponseEntity<List <CategoryDTO>> findAll(){
+		List<CategoryDTO> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 }
