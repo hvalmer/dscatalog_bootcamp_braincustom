@@ -14,14 +14,15 @@ public class Category implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)//id auto increment
 	private Long id;
 	private String name;
 	
 	public Category() {
 	}
+	
 
-	public Category(Long id, String name) {super();
+	public Category(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
