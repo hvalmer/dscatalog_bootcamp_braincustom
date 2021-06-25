@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baincustom.dscatalog.dto.CategoryDTO;
 import com.baincustom.dscatalog.entities.Category;
 import com.baincustom.dscatalog.repositories.CategoryRepository;
-import com.baincustom.dscatalog.services.exceptions.EntityNotFoundException;
+import com.baincustom.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class CategoryService {
@@ -38,9 +38,9 @@ public class CategoryService {
 
 	@Transactional(readOnly = true)
 	public CategoryDTO findById(Long id) {
-		Optional<Category> obj = repository.findById(id);
+		Optional<Category> obj = repository.findById(id);//findById vai ao BD e tras os dados do objeto procurado
 		//caso o objeto Category não existir(orElseThrow), instancia(new) uma exceção
-		Category entity = obj.orElseThrow(() -> new EntityNotFoundException("Entity not found!"));
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found!"));
 		return new CategoryDTO(entity);
 	}
 
@@ -50,5 +50,24 @@ public class CategoryService {
 		entity.setName(dto.getName());
 		entity = repository.save(entity);
 		return new CategoryDTO(entity);
+	}
+
+	/**
+	 * Caso o id não exista quando for salvar, vai retornar uma
+	 * exceção, tendo que adicionar um try(tentar rodar)/
+	 * catch(capturar) a exceção [EntityNot...]  
+	 */
+	@Transactional
+	public CategoryDTO update(Long id, CategoryDTO dto) {
+		try {
+			Category entity = repository.getOne(id);//getOne não toca no BD, instancia um objeto provisório
+			entity.setName(dto.getName());//atualizando os dados na memória
+			entity = repository.save(entity);//salvando no BD
+			return new CategoryDTO(entity);
+		}
+		catch(EntityNotFoundException e) {
+			//lançando a minha exceção personalizada
+			throw new ResourceNotFoundException("Id not found!" + id);
+		}
 	}
 }

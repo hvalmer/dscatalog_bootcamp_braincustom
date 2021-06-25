@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.baincustom.dscatalog.services.exceptions.EntityNotFoundException;
+import com.baincustom.dscatalog.services.exceptions.ResourceNotFoundException;
 
 /**
  * @ControllerAdvice
@@ -31,8 +31,8 @@ public class ResourceExceptionHandler {
 		um objeto do tipo StandardError
 	 */
 	//configurando a resposta padrão de NOt Found
-	@ExceptionHandler(EntityNotFoundException.class) //sabe o tipo de excessão que vai interceptar
-	public ResponseEntity<StandardError> entityNotFound(EntityNotFoundException e, HttpServletRequest request){
+	@ExceptionHandler(ResourceNotFoundException.class) //sabe o tipo de excessão que vai interceptar
+	public ResponseEntity<StandardError> entityNotFound(ResourceNotFoundException e, HttpServletRequest request){
 		
 		StandardError err = new StandardError();
 		err.setTimestamp(Instant.now());//hora e data atual
