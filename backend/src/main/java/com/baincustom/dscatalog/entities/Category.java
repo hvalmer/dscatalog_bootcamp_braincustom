@@ -1,11 +1,15 @@
 package com.baincustom.dscatalog.entities;
 
 import java.io.Serializable;
+import java.time.Instant;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 @Entity
@@ -17,6 +21,13 @@ public class Category implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)//id auto increment
 	private Long id;
 	private String name;
+	
+	//armazenar instantes no BD com padrão UTC
+	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+	private Instant createdAt;
+	
+	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+	private Instant updatedAt;
 	
 	public Category() {
 	}
@@ -42,7 +53,37 @@ public class Category implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
 
+	/**
+	 * sem o método set...atributos alterados automaticamente
+	 * quando criar(Create) e alterar(Update) os objetos. 
+	 */
+	
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	/**
+	 * sem o método set...atributos alterados automaticamente
+	 * quando criar(Create) e alterar(Update) os objetos. 
+	 */
+	
+	//criando um método auxiliar automatizado, para salvar(create) uma categoria e ja armazena no createdAt
+	//no instante atual e atualizar (updatedAt)
+	@PrePersist
+	public void prePersist() {
+		createdAt = Instant.now();
+	}
+	
+	@PreUpdate
+	public void preUpdate() {
+		updatedAt = Instant.now();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
