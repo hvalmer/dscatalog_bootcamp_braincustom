@@ -7,12 +7,15 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baincustom.dscatalog.dto.CategoryDTO;
 import com.baincustom.dscatalog.entities.Category;
 import com.baincustom.dscatalog.repositories.CategoryRepository;
+import com.baincustom.dscatalog.services.exceptions.DatabaseException;
 import com.baincustom.dscatalog.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -68,6 +71,24 @@ public class CategoryService {
 		catch(EntityNotFoundException e) {
 			//lançando a minha exceção personalizada
 			throw new ResourceNotFoundException("Id not found!" + id);
+		}
+	}
+
+	public void delete(Long id) {
+		//tratando uma exceção, caso um id que não exista
+		try { 
+			repository.deleteById(id);
+		}
+		catch(EmptyResultDataAccessException e){
+			throw new ResourceNotFoundException("Id not found!" + id);
+		}
+		/**
+		 * Integridade referencial: 
+		 * uma execeção do tipo catch, nesse caso de deletar a tabela do banco,
+		 * dando o erro específico 
+		 */
+		catch(DataIntegrityViolationException e) {
+			throw new DatabaseException("Integrity violation");
 		}
 	}
 }
