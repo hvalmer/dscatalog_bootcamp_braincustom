@@ -22,7 +22,7 @@ public class Category implements Serializable {
 	private Long id;
 	private String name;
 	
-	//armazenar instantes no BD com padrão UTC
+	//anotation que instrui o BD a armazenar a data no formato UTC
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant createdAt;
 	
