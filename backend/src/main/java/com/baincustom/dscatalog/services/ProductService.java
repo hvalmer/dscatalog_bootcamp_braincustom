@@ -12,8 +12,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baincustom.dscatalog.dto.CategoryDTO;
 import com.baincustom.dscatalog.dto.ProductDTO;
+import com.baincustom.dscatalog.entities.Category;
 import com.baincustom.dscatalog.entities.Product;
+import com.baincustom.dscatalog.repositories.CategoryRepository;
 import com.baincustom.dscatalog.repositories.ProductRepository;
 import com.baincustom.dscatalog.services.exceptions.DatabaseException;
 import com.baincustom.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -23,6 +26,9 @@ public class ProductService {
 
 	@Autowired //injeta automaticamente a dependência
 	private ProductRepository repository;
+	
+	@Autowired
+	private CategoryRepository categoryRepository;
 	
 	//garante a integridade da transação do BD
 	@Transactional(readOnly = true)
@@ -51,7 +57,8 @@ public class ProductService {
 	@Transactional
 	public ProductDTO insert(ProductDTO dto) {
 		Product entity = new Product();
-		//entity.setName(dto.getName());
+		//método auxiliar para insert e update
+		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new ProductDTO(entity);
 	}
@@ -65,7 +72,8 @@ public class ProductService {
 	public ProductDTO update(Long id, ProductDTO dto) {
 		try {
 			Product entity = repository.getOne(id);//getOne não toca no BD, instancia um objeto provisório
-			//entity.setName(dto.getName());//atualizando os dados na memória
+			//método auxiliar para insert e update
+			copyDtoToEntity(dto, entity);
 			entity = repository.save(entity);//salvando no BD
 			return new ProductDTO(entity);
 		}
@@ -90,6 +98,27 @@ public class ProductService {
 		 */
 		catch(DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation");
+		}
+	}
+	
+	//método auxiliar privado da classe Product, para ser salvo e ou atualizado
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		//copiando os dados do dto para a entity(entidade)
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setImgUrl(dto.getImgUrl());
+		entity.setDate(dto.getDate());
+		entity.setPrice(dto.getPrice());
+		
+		//limpando a lista e garantindo somente as categorias que vieram no Dto
+		entity.getCategories().clear();
+		
+		//copiando as categorias do dto para a entity(entidade)
+		//fazendo um forEach para percorrer todas CategoryDto assoc. ao dto
+		//percorrendo a lista de CategoryDto com o for e cada elemento chama catDto
+		for(CategoryDTO catDto : dto.getCategories()) { //forEach automático
+			Category category = categoryRepository.getOne(catDto.getId());//getOne não toca no BD
+			entity.getCategories().add(category);
 		}
 	}
 }
